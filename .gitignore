@@ -1,0 +1,43 @@
+# Dependencias
+/vendor/bundle/
+/.bundle/
+/vendor/cache/
+/vendor/gems/
+
+# Archivos de entorno
+.env
+.env.*
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de IDE y editores
+/.idea/
+/.vscode/
+*.swp
+*.swo
+*~
+
+# Archivos de logs
+*.log
+/log/
+
+# Archivos temporales
+/tmp/
+/temp/
+
+# Archivos de cobertura de pruebas
+/coverage/
+
+# Archivos de Docker (excepto Dockerfile y .dockerignore)
+.docker/
+
+# Archivos de caché de Ruby
+*.rbc
+.ruby-version
+.ruby-gemset
+
+# Archivos de caché de Bundler
+.bundle/
+Gemfile.lock 

@@ -5,3 +5,5 @@ gem 'rack', '~> 2.2'
 gem 'webrick' 
 gem 'jwt'
 gem 'bcrypt'
+gem 'dotenv'
+

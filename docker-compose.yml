@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "9292:9292"
+    volumes:
+      - .:/app
+    environment:
+      - JWT_SECRET_KEY=clave_super_secreta_para_el_challenge
+      - JWT_TOKEN_EXPIRATION=3600
+      - JWT_REFRESH_TOKEN_EXPIRATION=604800
+    command: bundle exec rackup --host 0.0.0.0 
