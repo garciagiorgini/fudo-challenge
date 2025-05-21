@@ -20,6 +20,8 @@ class App
         @auth.handle_auth(req, res)
       when ['POST', '/register']
         @auth.register(req, res)
+      when ['POST', '/refresh']
+        @auth.refresh_token(req, res)
       when ['POST', '/products']
         handle_create_product(req, res)
       when ['GET', '/products']

@@ -53,6 +53,13 @@ class AuthMiddleware
         401,
         { 'WWW-Authenticate' => 'Bearer error="invalid_token", error_description="Token expirado"' }
       )
+    rescue JwtService::SessionExpiredError => e
+      # Sesión expirada - el usuario debe volver a iniciar sesión
+      return unauthorized(
+        e.message,
+        401,
+        { 'WWW-Authenticate' => 'Bearer error="invalid_token", error_description="Sesión expirada"' }
+      )
     rescue JwtService::TokenInvalidError => e
       # Token inválido - error de formato o firma
       return unauthorized(e.message, 401)

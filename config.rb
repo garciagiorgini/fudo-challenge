@@ -20,5 +20,6 @@ module Config
     ALGORITHM = 'HS256'.freeze
     TOKEN_EXPIRATION = (ENV['JWT_TOKEN_EXPIRATION'] || 3600).to_i # 1 hora por defecto
     REFRESH_TOKEN_EXPIRATION = (ENV['JWT_REFRESH_TOKEN_EXPIRATION'] || 604800).to_i # 7 días por defecto
+    MAX_SESSION_DURATION = (ENV['JWT_MAX_SESSION_DURATION'] || 2592000).to_i # 30 días por defecto
   end
 end 
