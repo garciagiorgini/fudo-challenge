@@ -6,7 +6,26 @@ GEM
     dotenv (3.1.8)
     jwt (2.10.1)
       base64
+    multi_json (1.15.0)
+    mustermann (3.0.3)
+      ruby2_keywords (~> 0.0.1)
     rack (2.2.14)
+    rack-protection (3.2.0)
+      base64 (>= 0.1.0)
+      rack (~> 2.2, >= 2.2.4)
+    ruby2_keywords (0.0.5)
+    sinatra (3.2.0)
+      mustermann (~> 3.0)
+      rack (~> 2.2, >= 2.2.4)
+      rack-protection (= 3.2.0)
+      tilt (~> 2.0)
+    sinatra-contrib (3.2.0)
+      multi_json (>= 0.0.2)
+      mustermann (~> 3.0)
+      rack-protection (= 3.2.0)
+      sinatra (= 3.2.0)
+      tilt (~> 2.0)
+    tilt (2.6.0)
     webrick (1.9.1)
 
 PLATFORMS
@@ -18,6 +37,7 @@ DEPENDENCIES
   dotenv
   jwt
   rack (~> 2.2)
+  sinatra-contrib
   webrick
 
 BUNDLED WITH

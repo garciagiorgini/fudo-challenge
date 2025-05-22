@@ -10,30 +10,39 @@ class Auth
 
     def register(req, res)
         begin
-            puts "=== INICIO REGISTER ==="
-            body = JSON.parse(req.body.read)
-            puts "Body recibido en register: #{body.inspect}"
-            STDERR.puts "Body recibido en register: #{body.inspect}"
+            puts "\n=== INICIO REGISTER ==="
+            puts "REQUEST HEADERS: #{req.env.select { |k,v| k.start_with?('HTTP_') }}"
+            puts "CONTENT_TYPE: #{req.content_type}"
+            
+            body = req.body.read
+            puts "BODY RAW: #{body.inspect}"
+            req.body.rewind # Importante: volver al inicio del stream
+            
+            # Parsear el JSON solo si hay contenido
+            body = body.empty? ? {} : JSON.parse(body)
+            puts "BODY PARSED: #{body.inspect}"
+            
             # Validaciones básicas
             user = body['user'].to_s
             password = body['password'].to_s
-            puts "User: #{user.inspect}"
-            puts "Password: #{password.inspect}"
+            puts "USER: #{user.inspect}"
+            puts "PASSWORD LENGTH: #{password.length}"
             
             if user.empty? || password.empty?
+                puts "ERROR: Usuario o contraseña vacíos"
                 res.status = 400
                 return res.write({ error: 'Usuario y contraseña son requeridos' }.to_json)
             end
 
             # Validación de contraseña
-            puts "Longitud password: #{password.length}"
-            puts "PASSWORD_MIN_LENGTH: #{Config::PASSWORD_MIN_LENGTH.inspect}"
             if password.length < Config::PASSWORD_MIN_LENGTH
+                puts "ERROR: Contraseña demasiado corta"
                 res.status = 400
                 return res.write({ error: "La contraseña debe tener al menos #{Config::PASSWORD_MIN_LENGTH} caracteres" }.to_json)
             end
 
             if @@users[user]
+                puts "ERROR: Usuario ya existe"
                 res.status = 409
                 return res.write({ error: 'Usuario ya existe' }.to_json)
             end
@@ -46,11 +55,17 @@ class Auth
                 last_login_attempt: nil
             }
             
-            puts "=== FIN REGISTER ==="
+            puts "USUARIO REGISTRADO: #{user}"
+            puts "=== FIN REGISTER ===\n"
             res.write({ message: 'Usuario registrado exitosamente' }.to_json)
+        rescue JSON::ParserError => e
+            puts "ERROR JSON: #{e.message}"
+            puts "BODY QUE CAUSÓ EL ERROR: #{body.inspect}"
+            res.status = 400
+            res.write({ error: 'JSON inválido' }.to_json)
         rescue => e
             puts "ERROR EN REGISTER: #{e.message}"
-            puts "Backtrace: #{e.backtrace.join("\n")}"
+            puts "BACKTRACE: #{e.backtrace.join("\n")}"
             res.status = 500
             res.write({ error: 'Error interno del servidor', details: e.message }.to_json)
         end

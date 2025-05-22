@@ -75,6 +75,7 @@ http://localhost:9292
 JWT_SECRET_KEY=tu_clave_secreta_aqui
 JWT_TOKEN_EXPIRATION=3600
 JWT_REFRESH_TOKEN_EXPIRATION=604800
+JWT_MAX_SESSION_DURATION=2592000
 ```
 
 2. Iniciar con Docker Compose:
@@ -100,12 +101,14 @@ docker run -p 9292:9292 ruby-challenge
 .
 ├── app.rb              # App principal (Rack)
 ├── config.ru           # Entrada para rackup
+├── router.rb           # Router HTTP con Sinatra
 ├── product_store.rb    # Lógica de productos
 ├── auth.rb            # Lógica de autenticación
 ├── lib/
 │   └── jwt_service.rb # Servicio JWT
 ├── middleware/
-│   └── auth_middleware.rb # Middleware de autenticación
+│   ├── auth_middleware.rb # Middleware de autenticación
+│   └── gzip.rb           # Middleware de compresión
 ├── config.rb          # Configuración de la app
 ├── openapi.yaml       # Especificación OpenAPI de la API
 ├── Gemfile            # Dependencias
@@ -113,33 +116,59 @@ docker run -p 9292:9292 ruby-challenge
 └── README.md
 ```
 
-## 🧪 Probar la API
+## 🔐 Sistema de Autenticación
 
-### 1. Registro de usuario
+La API implementa un sistema de autenticación JWT con refresh tokens:
 
+### Tokens y Tiempos de Expiración
+
+- **Access Token**: Expira después de 1 hora (3600 segundos)
+- **Refresh Token**: Expira después de 7 días (604800 segundos)
+- **Sesión Máxima**: Expira después de 30 días (2592000 segundos)
+
+### Flujo de Autenticación
+
+1. **Registro de usuario**:
 ```bash
 curl -X POST http://localhost:9292/register \
   -H 'Content-Type: application/json' \
   -d '{"user":"admin", "password":"1234"}'
 ```
 
-### 2. Autenticación
-
+2. **Autenticación**:
 ```bash
 curl -X POST http://localhost:9292/auth \
   -H 'Content-Type: application/json' \
   -d '{"user":"admin", "password":"1234"}'
 ```
+Respuesta:
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiJ9...",
+  "refresh_token": "eyJhbGciOiJIUzI1NiJ9...",
+  "token_type": "Bearer",
+  "expires_in": 3600
+}
+```
 
-### 3. Refresh Token
-
+3. **Refresh Token**:
 ```bash
 curl -X POST http://localhost:9292/refresh \
   -H 'Content-Type: application/json' \
   -d '{"refresh_token":"tu_refresh_token"}'
 ```
 
-### 4. Crear producto
+### Características de Seguridad
+
+- Los tokens incluyen un identificador único (JTI)
+- El refresh token mantiene el tiempo de inicio de sesión original
+- La sesión expira después de 30 días, independientemente de los refreshes
+- Los tokens son firmados con una clave secreta configurable
+- En producción, la clave secreta es requerida
+
+## 🛍️ API de Productos
+
+### Crear producto
 
 ```bash
 curl -X POST http://localhost:9292/products \
@@ -148,7 +177,7 @@ curl -X POST http://localhost:9292/products \
   -d '{"name":"Pizza"}'
 ```
 
-### 5. Consultar productos
+### Consultar productos
 
 ```bash
 curl -X GET http://localhost:9292/products \
@@ -162,6 +191,7 @@ El proyecto requiere las siguientes variables de entorno:
 - `JWT_SECRET_KEY`: Clave secreta para firmar los tokens JWT
 - `JWT_TOKEN_EXPIRATION`: Tiempo de expiración del token de acceso (en segundos)
 - `JWT_REFRESH_TOKEN_EXPIRATION`: Tiempo de expiración del token de refresco (en segundos)
+- `JWT_MAX_SESSION_DURATION`: Tiempo máximo de duración de la sesión (en segundos)
 
 ## 🧠 Notas
 
@@ -170,6 +200,9 @@ El proyecto requiere las siguientes variables de entorno:
 - La API devuelve respuestas comprimidas con GZIP si el cliente lo solicita
 - Los tokens JWT tienen un tiempo de expiración configurable
 - Se implementa un sistema de refresh tokens para renovar tokens expirados
+- La sesión tiene un tiempo máximo de 30 días, independiente de los refreshes
+- El router HTTP está implementado usando Sinatra para un mejor manejo de rutas y errores
+- Se incluye logging detallado para facilitar el debugging
 
 ## 🐳 Docker
 
@@ -200,5 +233,3 @@ Notas importantes sobre la configuración de Docker:
 
 🧑 Autores
 Ver archivo AUTHORS en la raíz.
-
-yaml
