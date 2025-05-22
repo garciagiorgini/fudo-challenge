@@ -6,7 +6,6 @@ require_relative './auth'
 
 class App
   def initialize
-    @store = ProductStore.new
     @auth = Auth.new
   end
 
@@ -48,12 +47,12 @@ class App
 
   def handle_create_product(req, res)
     body = JSON.parse(req.body.read)
-    id = @store.add_async(body['name'])
+    id = ProductStore.add_async(body['name'])
     res.status = 202
     res.write({ message: 'Product creation scheduled', id: id }.to_json)
   end
 
   def handle_list_products(res)
-    res.write(@store.all.to_json)
+    res.write(ProductStore.all.to_json)
   end
 end

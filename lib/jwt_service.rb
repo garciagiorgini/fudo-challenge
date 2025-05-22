@@ -33,8 +33,8 @@ class JwtService
 
       def refresh_token(refresh_token)
         decoded_token = decode_token(refresh_token)
-        validate_refresh_token(decoded_token)
-        generate_tokens(decoded_token['user_id'])
+        session_start = validate_refresh_token(decoded_token)
+        generate_tokens(decoded_token['user_id'], session_start)
       end
 
       private
@@ -50,14 +50,14 @@ class JwtService
         encode_token(payload)
       end
 
-      def generate_refresh_token(user_id)
+      def generate_refresh_token(user_id, session_start = nil)
         payload = {
           user_id: user_id,
           exp: Time.now.to_i + Config::JWT::REFRESH_TOKEN_EXPIRATION,
           iat: Time.now.to_i,
           type: 'refresh',
           jti: SecureRandom.uuid, # Identificador único del token
-          session_start: Time.now.to_i # Timestamp de inicio de sesión
+          session_start: session_start || Time.now.to_i # Timestamp de inicio de sesión
         }
         encode_token(payload)
       end
@@ -89,6 +89,8 @@ class JwtService
         if session_age > Config::JWT::MAX_SESSION_DURATION
           raise SessionExpiredError, 'Sesión expirada. Por favor, inicie sesión nuevamente.'
         end
+        
+        decoded_token['session_start']
       end
   end
 end 
