@@ -13,4 +13,4 @@ use AuthMiddleware
 use GzipMiddleware
 
 # Run the router
-run ROUTER
+run Router

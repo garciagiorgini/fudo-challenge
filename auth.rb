@@ -21,8 +21,8 @@ class Auth
             # Parsear el JSON solo si hay contenido
             body = body.empty? ? {} : JSON.parse(body)
             puts "BODY PARSED: #{body.inspect}"
-            
-            # Validaciones básicas
+        
+        # Validaciones básicas
             user = body['user'].to_s
             password = body['password'].to_s
             puts "USER: #{user.inspect}"
@@ -30,9 +30,9 @@ class Auth
             
             if user.empty? || password.empty?
                 puts "ERROR: Usuario o contraseña vacíos"
-                res.status = 400
-                return res.write({ error: 'Usuario y contraseña son requeridos' }.to_json)
-            end
+            res.status = 400
+            return res.write({ error: 'Usuario y contraseña son requeridos' }.to_json)
+        end
 
             # Validación de contraseña
             if password.length < Config::PASSWORD_MIN_LENGTH
@@ -43,21 +43,21 @@ class Auth
 
             if @@users[user]
                 puts "ERROR: Usuario ya existe"
-                res.status = 409
-                return res.write({ error: 'Usuario ya existe' }.to_json)
-            end
+            res.status = 409
+            return res.write({ error: 'Usuario ya existe' }.to_json)
+        end
 
             password_hash = BCrypt::Password.create(password)
             @@users[user] = {
-                password_hash: password_hash,
+            password_hash: password_hash,
                 created_at: Time.now,
                 login_attempts: 0,
                 last_login_attempt: nil
-            }
-            
+        }
+        
             puts "USUARIO REGISTRADO: #{user}"
             puts "=== FIN REGISTER ===\n"
-            res.write({ message: 'Usuario registrado exitosamente' }.to_json)
+        res.write({ message: 'Usuario registrado exitosamente' }.to_json)
         rescue JSON::ParserError => e
             puts "ERROR JSON: #{e.message}"
             puts "BODY QUE CAUSÓ EL ERROR: #{body.inspect}"
@@ -89,8 +89,8 @@ class Auth
                 user_data[:login_attempts] = 0
                 user_data[:last_login_attempt] = nil
                 
-                tokens = JwtService.generate_tokens(body['user'])
-                res.write(tokens.to_json)
+            tokens = JwtService.generate_tokens(body['user'])
+            res.write(tokens.to_json)
             else
                 # Incrementar intentos fallidos
                 user_data[:login_attempts] += 1

@@ -50,11 +50,24 @@ class Router < Sinatra::Base
 
   get '/openapi.yaml' do
     res = Rack::Response.new
-    @app.serve_openapi(res)
+      @app.serve_openapi(res)
     res.finish
   end
 
-  # catch-all 404
+  get '/' do
+    puts "[DEBUG] Entrando a ruta /"
+    file_path = File.join(__dir__, 'AUTHORS')
+    puts "[DEBUG] Buscando archivo en: #{file_path}"
+    if File.exist?(file_path)
+      content_type 'text/plain'
+      cache_control :public, max_age: 86400  # 24 horas
+      File.read(file_path)
+    else
+      halt 404, 'AUTHORS file not found'
+    end
+  end
+
+# catch-all 404
   not_found do
     content_type :json
     status 404
@@ -96,4 +109,4 @@ class Router < Sinatra::Base
 end
 
 # Export the router instance
-ROUTER = Router.instance
+#ROUTER = Router.instance
